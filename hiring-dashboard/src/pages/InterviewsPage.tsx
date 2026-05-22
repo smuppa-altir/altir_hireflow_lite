@@ -157,8 +157,15 @@ export function InterviewsPage() {
       const sent = notifications?.results.filter((r) => r.status === 'SUCCESS') ?? []
 
       if (failed.length > 0) {
+        const detail = failed
+          .map((f) => f.errorMessage || `${f.recipientRole} (${f.recipientEmail})`)
+          .join(' ')
         toast.error(
-          `Interview saved, but ${failed.length} email(s) failed: ${failed.map((f) => f.errorMessage || f.recipientRole).join('; ')}`,
+          `Interview saved, but ${failed.length} email(s) failed. ${detail.slice(0, 280)}`,
+        )
+      } else if (notifications?.deliveryChannel === 'ethereal') {
+        toast.error(
+          'Interview saved. Test mail only (Ethereal) — emails did NOT go to real inboxes. Configure Gmail SMTP in backend/.env and restart the server.',
         )
       } else if (notifications?.deliveryChannel === 'console') {
         toast.error(

@@ -12,7 +12,7 @@ export function AuthLayout() {
         </div>
         <div>
           <blockquote className="text-2xl font-medium leading-relaxed text-zinc-100">
-            &ldquo;The best way to predict the future is to hire the people who will build it.&rdquo;
+            &ldquo;The best way to predict the future is to find right talent at right time for right work.&rdquo;
           </blockquote>
           <p className="mt-4 text-sm text-zinc-400">— HireFlow Team</p>
         </div>

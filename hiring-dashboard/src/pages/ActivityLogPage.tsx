@@ -1,58 +1,58 @@
 import { History } from 'lucide-react'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { PageHeader, SearchBar } from '@/components/common'
 import {
-  ACTIVITY_LOG_MOCK_DATA,
   ACTION_FILTER_OPTIONS,
   ActivityLogPagination,
   ActivityTimeline,
 } from '@/components/activity-log'
-import { EmptyState, Select } from '@/components/ui'
+import { EmptyState, Select, Spinner } from '@/components/ui'
 import { useDebounce } from '@/hooks'
-import type { ActivityActionType } from '@/types/activityLog'
+import { activityApi, getApiErrorMessage } from '@/services'
+import { mapApiActivityToLogEntry } from '@/services/activityMappers'
+import type { ActivityActionType, ActivityLogEntry } from '@/types/activityLog'
 
 const PAGE_SIZE = 8
 
 export function ActivityLogPage() {
-  const [events] = useState(ACTIVITY_LOG_MOCK_DATA)
+  const [events, setEvents] = useState<ActivityLogEntry[]>([])
+  const [total, setTotal] = useState(0)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [search, setSearch] = useState('')
   const [actionFilter, setActionFilter] = useState<ActivityActionType | ''>('')
   const [page, setPage] = useState(1)
 
   const debouncedSearch = useDebounce(search, 300)
 
-  const filteredEvents = useMemo(() => {
-    let result = [...events]
+  const load = useCallback(() => {
+    setLoading(true)
+    setError(null)
+    activityApi
+      .list({
+        page,
+        pageSize: PAGE_SIZE,
+        search: debouncedSearch || undefined,
+        action: actionFilter || undefined,
+      })
+      .then((result) => {
+        setEvents(result.data.map(mapApiActivityToLogEntry))
+        setTotal(result.total)
+      })
+      .catch((err) => {
+        setError(getApiErrorMessage(err))
+        setEvents([])
+        setTotal(0)
+      })
+      .finally(() => setLoading(false))
+  }, [page, debouncedSearch, actionFilter])
 
-    if (actionFilter) {
-      result = result.filter((e) => e.action === actionFilter)
-    }
+  useEffect(() => {
+    load()
+  }, [load])
 
-    if (debouncedSearch) {
-      const q = debouncedSearch.toLowerCase()
-      result = result.filter(
-        (e) =>
-          e.title.toLowerCase().includes(q) ||
-          e.description?.toLowerCase().includes(q) ||
-          e.actor.toLowerCase().includes(q) ||
-          e.candidateName?.toLowerCase().includes(q) ||
-          e.jobTitle?.toLowerCase().includes(q),
-      )
-    }
-
-    return result.sort(
-      (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
-    )
-  }, [events, actionFilter, debouncedSearch])
-
-  const total = filteredEvents.length
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
   const currentPage = Math.min(page, totalPages)
-
-  const paginatedEvents = useMemo(() => {
-    const start = (currentPage - 1) * PAGE_SIZE
-    return filteredEvents.slice(start, start + PAGE_SIZE)
-  }, [filteredEvents, currentPage])
 
   const handleSearchChange = useCallback((value: string) => {
     setSearch(value)
@@ -71,7 +71,6 @@ export function ActivityLogPage() {
         description="Audit trail of actions across your hiring workspace"
       />
 
-      {/* Search & filters */}
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
         <SearchBar
           value={search}
@@ -102,8 +101,13 @@ export function ActivityLogPage() {
         </div>
       </div>
 
-      {/* Timeline */}
-      {total === 0 ? (
+      {loading ? (
+        <div className="flex justify-center py-16">
+          <Spinner className="h-8 w-8" />
+        </div>
+      ) : error ? (
+        <p className="py-8 text-center text-sm text-red-600 dark:text-red-400">{error}</p>
+      ) : total === 0 ? (
         <EmptyState
           icon={History}
           title="No activity found"
@@ -111,7 +115,7 @@ export function ActivityLogPage() {
         />
       ) : (
         <div className="space-y-4">
-          <ActivityTimeline events={paginatedEvents} />
+          <ActivityTimeline events={events} />
           <ActivityLogPagination
             page={currentPage}
             pageSize={PAGE_SIZE}

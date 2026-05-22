@@ -28,7 +28,7 @@ export function ActivityTimeline({ events, className }: ActivityTimelineProps) {
     >
       <ul className="space-y-0">
         {events.map((event, index) => {
-          const config = ACTION_CONFIG[event.action]
+          const config = ACTION_CONFIG[event.action] ?? ACTION_CONFIG.note_added
           const Icon = config.icon
           const isLast = index === events.length - 1
 

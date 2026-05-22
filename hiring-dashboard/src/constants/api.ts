@@ -34,6 +34,10 @@ export const API_ENDPOINTS = {
     BY_CANDIDATE: (candidateId: string) => `/feedback/${candidateId}`,
     BY_ID: (id: string) => `/feedback/${id}`,
   },
+  ACTIVITY: {
+    BASE: '/activity',
+    BY_CANDIDATE: (candidateId: string) => `/activity/${candidateId}`,
+  },
 } as const
 
 export const STORAGE_KEYS = {

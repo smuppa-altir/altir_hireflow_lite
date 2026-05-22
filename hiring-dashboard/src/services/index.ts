@@ -10,6 +10,7 @@ export { jobService } from './jobService'
 export { interviewService } from './interviewService'
 export { interviewApi } from './interviewApi'
 export { dashboardService, type DashboardStats } from './dashboardService'
+export { activityApi } from './activityApi'
 export { uploadResume, type ResumeUploadResult } from './uploadService'
 export {
   parseResumeFile,
