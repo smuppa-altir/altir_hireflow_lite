@@ -1,73 +1,85 @@
-# React + TypeScript + Vite
+# HireFlow
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Production-ready Hiring Management System frontend built with React, TypeScript, and Vite.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **React 19** + **TypeScript**
+- **Vite** — build tooling
+- **Tailwind CSS v4** — styling
+- **React Router DOM v7** — routing
+- **Axios** — API layer
+- **Lucide React** — icons
 
-## React Compiler
+## Project structure
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+src/
+├── assets/          # Static assets
+├── components/      # Reusable UI components
+│   ├── ui/          # Primitives (Button, Input, Card, etc.)
+│   ├── common/      # Shared composites (PageHeader, StatCard)
+│   ├── candidates/  # Domain components
+│   ├── jobs/
+│   └── navigation/  # Sidebar, MobileNav
+├── constants/       # Routes, API endpoints, status labels
+├── context/         # Auth & Theme providers
+├── hooks/           # Custom hooks (useAuth, useCandidates, etc.)
+├── layouts/         # AppLayout, AuthLayout
+├── pages/           # Route-level pages
+├── routes/          # Router config & ProtectedRoute
+├── services/        # Axios client & API services
+├── types/           # TypeScript interfaces
+└── utils/           # Helpers (cn, formatters, storage)
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Getting started
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```bash
+npm install
+cp .env.example .env
+npm run dev
+```
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Open [http://localhost:5173](http://localhost:5173). Sign in with any email/password (mock auth enabled by default).
+
+## Environment variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `VITE_API_BASE_URL` | Backend API base URL | `http://localhost:3000/api` |
+| `VITE_USE_MOCK` | Use mock data (`false` to hit real API) | enabled |
+| `VITE_APP_NAME` | Application name | `HireFlow` |
+
+## Scripts
+
+- `npm run dev` — start dev server
+- `npm run build` — production build
+- `npm run preview` — preview production build
+- `npm run lint` — ESLint
+
+## Features
+
+- Dashboard with hiring pipeline stats
+- Candidate list, search, filters, and detail views
+- Job postings with status management
+- Interview schedule
+- Settings (profile, theme)
+- Dark / light mode
+- Mobile-responsive sidebar navigation
+- Protected routes with auth context
+- Axios interceptors for auth tokens
+
+## Connecting to a backend
+
+Set `VITE_USE_MOCK=false` and configure `VITE_API_BASE_URL` to your API. Services expect responses shaped as:
+
+```json
+{ "data": { ... } }
+```
+
+for single resources, and paginated lists as:
+
+```json
+{ "data": { "data": [], "total": 0, "page": 1, "pageSize": 10, "totalPages": 1 } }
 ```
